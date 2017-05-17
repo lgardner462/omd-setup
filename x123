@@ -1,0 +1,111 @@
+#!/bin/bash
+
+workingdir=/cm/shared/admin/bin/lgardner
+newPath=$workingdir/new-status
+oldPath=$workingdir/old-status
+inodesRep=0
+storRep=0
+
+show_help () {
+    echo "If run without arguments this script will diff the current LFS query status against the query status of when the script was last run"  
+    echo "-t for text output"
+    echo "-b for begin file (file will be in format 'full<date>')"
+    echo "-e for endfile (file will be in format 'full<date>')"
+    echo "-i for inodes report"
+    echo "-s for storage report"
+    exit
+}
+
+text=0
+
+while getopts "h?tb:e:si" opt; do
+    case "$opt" in
+    h|\?)
+        show_help
+        exit 0
+        ;;
+    t)  
+    text=1
+        ;;
+    b)  
+    oldPath=$OPTARG
+    ;;
+    e)
+    newPath=$OPTARG
+    ;;
+    s)
+        storRep=1
+        ;;
+    i)
+        inodesRep=1
+        ;;
+    esac
+done
+
+
+if [ $text -eq 0 ]; then
+    TEMPFILE=$(mktemp)
+fi
+inodeOut=""
+storOut=""
+newtime=$(date "+%H%M-%m%d%Y")
+oldtime=$(cat $oldPath| grep TIME | awk -F = '{ print $2 }')
+deltastr=$oldtime"-to-"$newtime
+storPath=$workingdir/lfs-output/"storage-"$(date +%H%M-%m%d%Y)
+inodePath=$workingdir/lfs-output/"inodes-"$(date +%H%M-%m%d%Y)
+fullPath=$workingdir/lfs-output/"full-"$(date +%H%M-%m%d%Y)
+deltainodePath=$workingdir/delta-output/"inodes-delta-"$deltastr
+deltastorPath=$workingdir/delta-output/"storage-delta-"$deltastr
+mv $newPath $oldPath
+echo "TIME="$newtime > $newPath
+for i in $(cat /cm/shared/admin/bin/openmind-group-quota | grep ":1:" | awk -F : '{ print $1}'); do
+    status=0
+    getent group $i > /dev/null 2>&1
+    status=$?
+    if [ $status -eq 0 ];then
+        lfs quota -q -g $i /om | awk -v "i=$i" '{ print $2","i","$6 }' >> $newPath
+    fi
+done
+
+
+
+cp $newPath $fullPath
+
+
+newList=$(cat $newPath| grep -v "TIME" | tr " " "\n")
+oldList=$(cat $oldPath| grep -v "TIME" | tr " " "\n")
+if [ $inodesRep -ne 0 ];then
+    for i in $newList;do
+            groupname=$(echo -e "$i" | awk -F , '{print $2}')
+            newinodes=$(echo -e "$i" | awk -F , '{print $3}')
+            oldinodes=$(echo -e "$oldList" | grep $groupname | awk -F , '{print $3}')
+            deltainodes=$(($newinodes-$oldinodes))
+            if [ $deltainodes -ne 0 ];then
+                    inodeOut=$inodeOut"\n"$groupname","$( echo $deltainodes )
+            fi
+    done
+echo -e "INODE REPORT" >> ${TEMPFILE} 2>&1
+echo -e  "$inodeOut" | sort -r -t, -gk2 | sed 's/,/ -- /g' >> ${TEMPFILE} 2>&1
+fi
+
+
+
+if [ $storRep -ne 0 ];then
+    for i in $newList;do
+            groupname=$(echo -e "$i" | awk -F , '{print $2}')
+        newkb=$(echo -e "$i" | awk -F , '{print $1}')
+            oldkb=$(echo -e "$oldList" | grep $groupname | awk -F , '{print $1}')
+            deltakb=$(($newkb-$oldkb))
+            if [ $deltakb -ne 0 ];then
+                    storOut=$storOut"\n"$groupname","$( echo $deltakb )
+            fi
+    done
+echo -e "STORAGE REPORT" >> ${TEMPFILE} 2>&1
+echo -e "$storOut" | sort -r -t, -gk2 | sed 's/,/ -- /g'  >> ${TEMPFILE} 2>&1
+fi
+
+
+
+
+
+
