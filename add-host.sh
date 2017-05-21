@@ -4,11 +4,12 @@ noreloading=0
 contract=$(whoami)
 show_help () {
     echo '-p ping only host (you still need to type a criticality flag'
+#    echo '-w for contract eg neuro/engaging/c3ddb etc'
     echo '-b for basic host <hostname>'
     echo '-c for critical host <hostname>'
     echo '-x for critical 24x7 host <hostname>'
     echo '-n to not reload after adding host'
-    echo 'adduser.sh -b testhost' 
+    echo 'adduser.sh -b testhost -w neuro -s nodes' 
     exit
 }
 
@@ -104,5 +105,7 @@ if [ $noreloading -eq 1 ];then
 	cmk -II $host
 	cmk -O
 fi
+
+
 
 
