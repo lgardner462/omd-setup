@@ -74,11 +74,10 @@ Active checks can be created in subdirectories as well, these have a bit more sy
 
 active_checks['dns'] = [
   ( ('node001.cm.cluster', {'server': None}), ['/' + FOLDER_PATH + '/+'], ['service001'] ),
-] + active_checks['dns']
+] + active_checks['dns']</code>
 
 
 A list of all supported check_mk checks can be found by running the command cmk -L when logged in as the omd user
-</code>
 
 =============================================================================================================================================
 
@@ -130,11 +129,11 @@ more info available here
 ( ALL_HOSTS, [ 'NFS mount /run/*' ] ),
 # use name here
  ( [ 'testhost1','testhost2' ], ['Postfix Queue' ]),
-]
+]</code>
 
 we can also use the inventory_df_exclude_fs command to ignore certain file systems outright
 
-inventory_df_exclude_fs += [
+<code>inventory_df_exclude_fs += [
 
 'tmpfs',
 
