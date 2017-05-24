@@ -173,3 +173,20 @@ to see what the default values are
 
 
 =============================================================================================================================================
+
+
+
+To remove a check from check_mk without re-inventorizing ( to check old state vs new state in power outage )
+
+When logged in as OMDuser 
+
+su - engaging
+
+Remove the line in 
+
+~/var/check_mk/autochecks/<hostname>.mk
+
+That corresponds to the check, then run 
+
+cmk -O
+
