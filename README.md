@@ -47,17 +47,17 @@ All of the checkmk .mk files are written in Python, with the major variables suc
 
 a list of most of these variables can be found at 
 
-https://mathias-kettner.de/checkmk_configvars.html 
+> https://mathias-kettner.de/checkmk_configvars.html 
 
 =============================================================================================================================================
 
 
 The checkmk-setup.sh script will automatically cause all of our services to have the same service group as the hostgroup of the host it was assigned, this is generally what we would like, however sometimes we have a non-critical service on a critical24x7 host (such as Check_MK) that sends us pages in the middle of the night. For this we would simply change that service to a basic service by editing the rules.mk file in that host's subdirectory.
 
-service_groups = [
+<code>service_groups = [
   ( 'test-basic', ['/' + FOLDER_PATH + '/+'], ['testhost'], [u'Check_MK$'] ),
 ] + service_groups
-
+</code>
 Notice that the service is simply appended to the existing service_groups list that check_mk already uses. This will assign the service_group of 'test-basic' to service 'Check_MK' only the host 'testhost'
 
 Note that check_mk prioritizes files found at lower deeper in the wato folder, so if you have two conflicting rules, the rule in the deepest level will be applied, while conflicting rules on the same level will both be applied. This is why we keep the generic rules in the top level wato directory with host specific ones in the deeper host specific subdirectories.   
@@ -70,7 +70,7 @@ Active checks
 
 Active checks can be created in subdirectories as well, these have a bit more syntax to them since they are a WATO thing more than a simple check_mk item. (As a general rule if you see the FOLDER_PATH there is a good chance this is a WATO item)
 
-active_checks.setdefault('dns', [])
+<code>active_checks.setdefault('dns', [])
 
 active_checks['dns'] = [
   ( ('node001.cm.cluster', {'server': None}), ['/' + FOLDER_PATH + '/+'], ['service001'] ),
@@ -78,7 +78,7 @@ active_checks['dns'] = [
 
 
 A list of all supported check_mk checks can be found by running the command cmk -L when logged in as the omd user
-
+</code>
 
 =============================================================================================================================================
 
@@ -89,11 +89,11 @@ When a host is added check_mk will perform a quick inventory of the host and wil
 
 We can also add in host based checks with mrpe. This has two parts, first you must edit the mrpe.cfg on the host, this is located at:
 
- /etc/check-mk-agent/mrpe.cfg  
+> /etc/check-mk-agent/mrpe.cfg  
 
 In this file you would write the name of your check, as well as the command that your check will run eg
 
-check_lfs   /usr/lib64/nagios/plugins/check_lfs -w 96% -c 97%
+> check_lfs   /usr/lib64/nagios/plugins/check_lfs -w 96% -c 97%
 
 with check_lfs being then name for the check and /usr/lib64/nagios/plugins/check_lfs -w 96% -c 97% being the command you want the check to run (note the absolute path)
 
@@ -120,11 +120,11 @@ ignored_checks  = Host specific configuration list of checktypes to exclude
 
 more info available here 
 
-https://mathias-kettner.de/checkmk_inventory.html
+> https://mathias-kettner.de/checkmk_inventory.html
 
 
 
-ignored_services += [
+<code>ignored_services += [
 
 # These are autofs mounts and we shouldn't monitor them
 ( ALL_HOSTS, [ 'NFS mount /run/*' ] ),
@@ -138,8 +138,7 @@ inventory_df_exclude_fs += [
 
 'tmpfs',
 
-]
-
+]</code>
 =============================================================================================================================================
 
 
@@ -147,11 +146,11 @@ Setting custom thresholds for checks
 
 We can also set custom thresholds for certain checks in check_mk, as many of the nagios plugins have checks where the default is too low for certain environments. To do this we simply append to the checks list in a checks.mk file
 
-checks = [
+<code>checks = [
  ( ALL_HOSTS, "logins", None, (150, 200) ),
  ( "testhost", "cpu.threads", None, (5000, 7000) ),
 (["test-basic"],ALL_HOSTS , df , / , (80,90) ), 
-]
+]</code>
 
 
 Each check is written as a python tuple with 4-5 parameters
@@ -163,11 +162,11 @@ In the last example we use the optional first argument and specify host tags, th
 
 If you are unsure if your check needs certain parameters or what the default parameters are you can check 
 
-/omd/sites/<site>/var/check_mk/autochecks/<hostname>.mk 
+> /omd/sites/<site>/var/check_mk/autochecks/<hostname>.mk 
 
 to see what check is being performed, also you can check
 
-/omd/versions/<version>/share/check_mk/checks/<checkname> 
+> /omd/versions/<version>/share/check_mk/checks/<checkname> 
 
 to see what the default values are
 
@@ -180,13 +179,13 @@ To remove a check from check_mk without re-inventorizing ( to check old state vs
 
 When logged in as OMDuser 
 
-su - engaging
+> su - engaging
 
 Remove the line in 
 
-~/var/check_mk/autochecks/<hostname>.mk
+> ~/var/check_mk/autochecks/<hostname>.mk
 
 That corresponds to the check, then run 
 
-cmk -O
+> cmk -O
 
