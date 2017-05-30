@@ -1,0 +1,124 @@
+#!/usr/bin/python
+import sys,os,getopt,subprocess,shlex
+command = "lfs df -i | sed '/^\s*$/d' | grep -v Mounted | grep -v filesystem"
+
+#critical = float(95.0)
+#warning = float(90.0)
+crit=False
+warn=False
+outputStr=""
+percent=False
+try:                                
+        opts, args = getopt.getopt(sys.argv[1:], "c:w:i:f:", ["critical=", "warning=","inode=","filesystem="]) 
+except getopt.GetoptError:           
+        print "Flags for this plugin are"
+	print "-c <int|float>"
+	print "--critical=<int|float>"
+	print "-w <int|float>" 
+	print "--warning=<int|float>"
+	print "-i <inode path>"
+	print "--inode=<inode path>"
+	print "-f <filesystem path>"
+	print "--filesystem=<filesystem path>"
+	sys.exit(4)                    
+    
+for opt , arg in opts:
+	if opt in ("-c" , "--critical"):
+		try:
+			argword=arg
+			checkmod="%"
+			critical=int(arg.replace('%',''))
+			critical=float(critical)
+			if checkmod in argword:
+				percent=True
+		except ValueError:
+			print "Must pass an int or float as an argument"
+			sys.exit(4)
+	elif opt in ("-w" , "--warning"):
+		try:
+			argword=arg.split()
+			checkmod="%"
+			warning=int(arg.replace('%',''))
+			warning=float(warning)
+			if checkmod in argword:
+				print "True"
+				percent=True
+    		except ValueError:
+			print"Must pass an int or float as an argument"
+			sys.exit(4)
+	elif opt in ("-i", "--inode"):
+		try:
+			testcmd = "lfs df -i " + arg
+			out = subprocess.check_output(shlex.split(testcmd),stderr=subprocess.STDOUT)
+			if out == "":
+				print "lfs df -i " + arg  + " returned no items, are you sure this is the right file path?"
+				sys.exit(4)
+		except subprocess.CalledProcessError:
+			print "Invalid file path for -i flag"
+			sys.exit(4)
+                command = "lfs df -i " + str(arg) + "| sed '/^\s*$/d' | grep -v Mounted | grep -v filesystem"
+		inodepath = arg
+	elif opt in ("-f", "--filesystem"):
+                try:
+                        testcmd = "lfs df -i " + arg
+                        out = subprocess.check_output(shlex.split(testcmd),stderr=subprocess.STDOUT)
+                        if out == "":
+                                print "lfs df -i " + arg  + " returned no items, are you sure this is the right file path?"
+                                sys.exit(4)
+                except subprocess.CalledProcessError:
+                        print "Invalid file path for -i flag"
+                        sys.exit(4)
+                command = "lfs df -i" + str(arg) + "| sed '/^\s*$/d' | grep -v Mounted | grep filesystem"
+		fspath = arg
+
+
+
+
+try:
+	critical
+	warning
+except NameError:
+	print "Critical and warning levels must both be specified!"
+	sys.exit(4)
+
+inodeUsage= os.popen(command).readlines()
+for i in inodeUsage:
+	j=i.split()
+	uuid=j[0]
+	if uuid=="filesystem":
+		j[0] = ''.join(j[0:2])
+		del j[1]
+		uuid=fspath
+	if percent == True:
+		inodePercent= j[4]
+	else:
+		inodePercent= j[3]
+	inodePercentInt= float( inodePercent.replace("%","") )
+	if percent == True:
+		if inodePercentInt >= critical:
+			crit=True
+			outputStr+=  uuid + " " + inodePercent + "\n"
+		elif inodePercentInt >= warning:
+			warn=True
+			outputStr+=  uuid + " " + inodePercent + "\n"
+	elif percent == False:
+		if inodePercentInt <= critical:
+			crit = True
+			outputStr+=  uuid + " " + inodePercent + " inodes remaining\n"
+		elif inodePercentInt <= warning:
+			warn = True
+			outputStr+=  uuid + " " + inodePercent + " inodes remaining\n"
+
+
+if crit == True:
+	print outputStr
+	sys.exit(2)
+elif warn == True:
+	print outputStr
+	sys.exit(1)
+elif warn == False and crit == False:
+	print "OK - " + str(inodePercentInt) + "  (crit=" + str(critical) + " -- warn=" + str(warning) + ")"
+	sys.exit(0)
+else:
+	print "Unknown- A problem has occured"
+	sys.exit(3)

@@ -1,0 +1,57 @@
+#!/bin/bash
+
+show_help () {
+    echo add -h for help
+    echo add -w for warn flag
+    echo add -c for crit flag
+    exit
+}
+
+text=0
+critExit=0
+warnExit=0
+while getopts "h?w:c:" opt; do
+    case "$opt" in
+    h|\?)
+        show_help
+        exit 0
+        ;;
+    c)
+        crit=$OPTARG
+        ;;
+    w) 
+        warn=$OPTARG
+        ;;
+    esac
+done
+outputstr=""
+
+procs=$(ps aux | grep -v USER) 
+users=$(echo "$procs" | awk '{print $1}'| sort | uniq | tr " " "\n")
+for i in ${users};do
+        cpuuse=$(echo "$procs" | grep -e "$i" | awk '{print $3}' | awk '{s+=$1} END {print s}' )
+        if [[ $cpuuse != 0 ]];then
+            #echo "$i":"$cpuuse"
+            if [[ $( echo " $cpuuse > $crit" | bc ) -eq 1 ]];then
+               critExit=1
+               outputstr=$outputstr"CRIT - $i:$cpuuse\n"
+            elif [[ $( echo " $cpuuse > $warn " | bc ) -eq 1 ]];then
+               warnExit=1
+               outputstr=$outputstr"WARN - $i:$cpuuse\n"
+            fi
+        fi
+done
+
+if [[ $critExit -eq 1 ]];then
+    echo -e "$outputstr"
+    exit 2
+elif [[ $warnExit -eq 1 ]];then
+    echo -e "$outputstr"
+    exit 1
+elif [[ $critExit -eq 0 && $warnExit -eq 0 ]];then
+    echo -e "OK - No users using excessive CPU."
+    exit 0
+else
+    echo "Unknown - Something is borked!"
+fi
+
