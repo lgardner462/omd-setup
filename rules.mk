@@ -11,6 +11,16 @@ extra_service_conf['_ec_sl'] = [
 
 
 
+extra_service_conf.setdefault('_ec_sl', []) 
+
+extra_service_conf['_ec_sl'] = [
+  ( 10, ALL_HOSTS, ['Check_MK$'] ),
+            ] + extra_service_conf['_ec_sl']
+
+
+
+
+
 extra_host_conf.setdefault('check_interval', [])
 
 extra_host_conf['check_interval'] = [
