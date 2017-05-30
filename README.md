@@ -52,15 +52,32 @@ a list of most of these variables can be found at
 =============================================================================================================================================
 
 
-The checkmk-setup.sh script will automatically cause all of our services to have the same service group as the hostgroup of the host it was assigned, this is generally what we would like, however sometimes we have a non-critical service on a critical24x7 host (such as Check_MK) that sends us pages in the middle of the night. For this we would simply change that service to a basic service by editing the rules.mk file in that host's subdirectory.
+The checkmk-setup.sh script will automatically cause all of our services to have the same service group as the hostgroup of the host it was assigned, this is generally what we would like, this makes tracking certain services easier, however sometimes we have a non-critical service on a critical24x7 host (such as Check_MK) that sends us pages in the middle of the night. This is where "Service levels" come in, service levels are similar to service groups, but a service can only have one given service level at a time, while it can have multiple service groups. This makes overwriting the service level on a service by service basis much easier. Our service notifications are based on "Service level" rather than "Service Group" which is used for organizational purposes.
 
-<code>service_groups = [
-  ( 'test-basic', ['/' + FOLDER_PATH + '/+'], ['testhost'], [u'Check_MK$'] ),
-] + service_groups
+
+
+This assigns our service levels based on our host criticality tags
+<code>extra_service_conf.setdefault('_ec_sl', []) 
+
+extra_service_conf['_ec_sl'] = [
+  ( 10, ['engaging-basic', ], ALL_HOSTS, ALL_SERVICES ),
+  ( 20, ['engaging-critical', ], ALL_HOSTS, ALL_SERVICES ),
+  ( 30, ['engaging-critical-24x7', ], ALL_HOSTS, ALL_SERVICES ),
+      ] + extra_service_conf['_ec_sl']
 </code>
-Notice that the service is simply appended to the existing service_groups list that check_mk already uses. This will assign the service_group of 'test-basic' to service 'Check_MK' only the host 'testhost'
 
-Note that check_mk prioritizes files found at lower deeper in the wato folder, so if you have two conflicting rules, the rule in the deepest level will be applied, while conflicting rules on the same level will both be applied. This is why we keep the generic rules in the top level wato directory with host specific ones in the deeper host specific subdirectories.   
+We can overwrite this default value on a service by service basis, this following command makes Check_MK a basic service on all hosts
+
+extra_service_conf.setdefault('_ec_sl', []) 
+
+extra_service_conf['_ec_sl'] = [
+  ( 10, ALL_HOSTS, ['Check_MK$'] ),
+      ] + extra_service_conf['_ec_sl']
+
+
+
+
+Note that check_mk prioritizes files found at lower deeper in the wato folder, so if you have two conflicting service levels, the rule in the deepest level will be applied. If a service level is changed multiple times on the same level, the one which was applied last will be assigned. This is why we keep the generic rules in the top level wato directory with host specific ones in the deeper host specific subdirectories.   
 
 
 =============================================================================================================================================
