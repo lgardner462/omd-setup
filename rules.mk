@@ -1,6 +1,15 @@
 # Written by WATO
 # encoding: utf-8
 
+extra_service_conf.setdefault('_ec_sl', []) 
+
+extra_service_conf['_ec_sl'] = [
+  ( 10, ['tsstuff-basic', ], ALL_HOSTS, ALL_SERVICES ),
+  ( 20, ['tsstuff-critical', ], ALL_HOSTS, ALL_SERVICES ),
+  ( 30, ['tsstuff-critical-24x7', ], ALL_HOSTS, ALL_SERVICES ),
+      ] + extra_service_conf['_ec_sl']
+
+
 
 extra_host_conf.setdefault('check_interval', [])
 
