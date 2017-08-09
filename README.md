@@ -205,3 +205,44 @@ That corresponds to the check, then run
 
 > cmk -O
 
+
+===================================================================================================
+
+Dealing with slow host checks
+
+Sometimes our check_mk mrpe checks will not work on slower hosts with slower checks, this is usually caused by one or more raid checks taking too long to respond. We an use local checks for these. To get the proper directory for local checks on the target host, we do the following from the site user on the noc.
+
+> cmk -d eofe1.cm.cluster | head -10
+
+The directory we are looking for is called "LocalDirectory"
+
+on this is by default /usr/share/check-mk-agent/local
+
+You would then create a dir who's name would be how many seconds you want between checks. e.g.
+
+<code> /usr/share/check-mk-agent/local/900 </code> 
+
+would run the scripts inside every 900 seconds, OMD will cache the output and check the cache for checks if your check_interval is lower than the script run time.
+
+These scripts are different from nagios plugins because the output must be formatted in a certain way. The first field would be the nagios exit code number of 0,1,2, or 3. The second field is the name of the check that appaers in check_mk, the third field is performance data, or a - if you do not have performance data. The fourth is the status of the check in text "OK/WARNING/CRITICAL/UNKNOWN". The fifth is the output of the check. There are some examples on eofe1 for the osts if needed.
+
+
+#########################################################################
+
+
+Different thresholds for public vs private filespace
+
+In ~/etc/check_mk/conf.d/wato/rules.mk
+
+checkgroup_parameters.setdefault('filesystem', [])
+
+checkgroup_parameters['filesystem'] = [
+  ( {'levels': (75.0, 95.0)}, [], ALL_HOSTS, [u'<public-fs-name>'] ),
+  ( {'levels': (95.0, 96.0)}, [], ALL_HOSTS, ALL_SERVICES ),
+] + checkgroup_parameters['filesystem']
+
+
+
+If we monitor any other public fs we just put them in after <public-fs-name> like
+
+  ( {'levels': (75.0, 95.0)}, [], ALL_HOSTS, [u'<public-fs-name1>',u'<public-fs-name2>'] ), 
