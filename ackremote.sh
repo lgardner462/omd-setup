@@ -10,8 +10,6 @@ show_help () {
     echo "-c is the contract neuro,c3ddb,engaging"
     echo "-n is the node/host name for the ack    _required_"
     echo "-s is the service name if you are acking a service   _optional_"
-    echo "-a is the admin name eg. neuro-admin   _required_"
-    echo "-p is the admin pw     _required_"
     exit
 }
 
@@ -34,7 +32,8 @@ while getopts "h?n:s:o:u:c:a:p:" opt; do
 	node=$OPTARG
         ;;
     s)
-	service=$( urlencode "$OPTARG")
+	service=$OPTARG
+	service=$( urlencode "$service")
 	;;
     esac
 done
@@ -62,3 +61,11 @@ curl -u $adminname:$adminpw 'http://'"$url"'/'"$site"'/check_mk/view.py?_do_conf
 
 
 fi
+
+echo NAME $adminname
+echo pw $adminpw
+echo url $url
+echo site $site
+echo comment $comment
+echo node $node
+echo service $service
