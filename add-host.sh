@@ -94,20 +94,20 @@ mkdir $fulldir
 if [ $pingonly -eq 1 ];then
 
 	echo -e  'all_hosts += [ 
-"'$host'|lan|lnx|ping-only|tcp|'$hosttag'|wato/" + FOLDER_PATH + "/"
+"'$host'|lan|lnx|ping-only|tcp|'$hosttag'|wato|/" + FOLDER_PATH + "/"
 ]' > $fulldir"/"hosts.mk
 
 elif [ $printer -eq 1 ];then
 
         echo -e 'all_hosts += [
-"'$host'|lan|lnx|snmp|printer|'$hosttag'|wato/" + FOLDER_PATH + "/"
+"'$host'|lan|lnx|snmp|printer|'$hosttag'|wato|/" + FOLDER_PATH + "/"
 ]' > $fulldir"/"hosts.mk
 
 
 else
 
 	echo -e  'all_hosts += [ 
-"'$host'|lan|lnx|cmk-agent|tcp|'$hosttag'|wato/" + FOLDER_PATH + "/"
+"'$host'|lan|lnx|cmk-agent|tcp|'$hosttag'|wato|/" + FOLDER_PATH + "/"
 ]' > $fulldir"/"hosts.mk
 
 
