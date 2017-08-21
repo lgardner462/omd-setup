@@ -23,6 +23,15 @@ while getopts "h|\?" o;do
     esac
 done    
 
+status=0
+echo "Checking if group exists."
+getent groups $site
+status=$?
+if [[ $status == $? ]];then
+    echo "OMD creates a group for omd site, please choose another site name"
+    exit 1
+fi
+
 
 if [[ $EUID -ne 0 ]];then
     echo "OMD setup script must be run as root user"
@@ -35,7 +44,7 @@ yum install -y bind-utils
 
 yum install -y mailx
 
-wget https://labs.consol.de/repo/stable/rhel7/x86_64/omd-1.30.rhel7.x86_64.rpm 
+#wget https://labs.consol.de/repo/stable/rhel7/x86_64/omd-1.30.rhel7.x86_64.rpm 
 
 yum --nogpgcheck localinstall -y omd-1.30.rhel7.x86_64.rpm 
 
