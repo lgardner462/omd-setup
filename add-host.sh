@@ -1,14 +1,16 @@
 #!/bin/bash
 pingonly=0
+printer=0
 noreloading=0
-contract=$(whoami)
+#contract=$(whoami)
 show_help () {
     echo '-p ping only host (you still need to type a criticality flag'
-#    echo '-w for contract eg neuro/engaging/c3ddb etc'
+    echo '-w for contract eg neuro/engaging/c3ddb etc'
     echo '-b for basic host <hostname>'
     echo '-c for critical host <hostname>'
     echo '-x for critical 24x7 host <hostname>'
     echo '-n to not reload after adding host'
+    echo '-r for printer'
     echo 'adduser.sh -b testhost -w neuro -s nodes' 
     exit
 }
@@ -21,7 +23,7 @@ else
 fi
 
 
-while getopts "hb:c:x::pr" o;do
+while getopts "hb:c:x::pw:rn" o;do
 	case "$o" in
 		h)
 			show_help
@@ -42,15 +44,18 @@ while getopts "hb:c:x::pr" o;do
                         hostgroupdir=critical24x7
 			host=$OPTARG
 			;;
-#		w)
-#			contract=$OPTARG
-#			;;
+		w)
+			contract=$OPTARG
+			;;
 		p)
 			pingonly=1
 			;;
-		d)
+		n)
 			noreloading=1
 			;;
+                r)
+                        printer=1
+                        ;;
 	esac
 done	
 shift $(( $OPTIND -1))
@@ -63,10 +68,10 @@ elif [ -z $site ];then
 	echo you must specify a site
 	show_help
 	exit 0
-#elif [ -z $contract ]; then 
-#	echo you must specify a contract
-#	show_help 
-#	exit 0
+elif [ -z $contract ]; then 
+	echo you must specify a contract
+	show_help 
+	exit 0
 fi
 topdir=/omd/sites/$site/etc/check_mk/conf.d/wato
 if [ ! -d $topdir/basic ];then
@@ -89,8 +94,15 @@ mkdir $fulldir
 if [ $pingonly -eq 1 ];then
 
 	echo -e  'all_hosts += [ 
-"'$host'|lan|lnx|ping-only|cmk-agent|tcp|'$hosttag'|wato/" + FOLDER_PATH + "/"
+"'$host'|lan|lnx|ping-only|tcp|'$hosttag'|wato/" + FOLDER_PATH + "/"
 ]' > $fulldir"/"hosts.mk
+
+elif [ $printer -eq 1 ];then
+
+        echo -e 'all_hosts += [
+"'$host'|lan|lnx|snmp|printer|'$hosttag'|wato/" + FOLDER_PATH + "/"
+]' > $fulldir"/"hosts.mk
+
 
 else
 
@@ -101,7 +113,7 @@ else
 
 fi
 
-if [ $noreloading -eq 1 ];then
+if [ $noreloading -eq 0 ];then
 	cmk -II $host
 	cmk -O
 fi
