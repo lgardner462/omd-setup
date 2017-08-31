@@ -1,3 +1,6 @@
+# Written by Multisite UserDB
+# encoding: utf-8
+
 contacts.update(
 {'tsstuff-admin': {'alias': u'tsstuff-admin',
                     'contactgroups': ['tsstuff-admins'],
@@ -23,4 +26,3 @@ contacts.update(
               'email': '',
               'pager': ''}}
 )
-

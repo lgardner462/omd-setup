@@ -25,4 +25,3 @@ timeperiods.update({'allday': {'alias': u'all day every day',
                'thursday': [('09:00', '17:00')],
                'tuesday': [('09:00', '17:00')],
                'wednesday': [('09:00', '17:00')]}})
-

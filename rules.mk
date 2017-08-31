@@ -1,24 +1,29 @@
 # Written by WATO
 # encoding: utf-8
 
-extra_service_conf.setdefault('_ec_sl', []) 
+
+extra_service_conf.setdefault('_ec_sl', [])
 
 extra_service_conf['_ec_sl'] = [
   ( 10, ['tsstuff-basic', ], ALL_HOSTS, ALL_SERVICES ),
   ( 20, ['tsstuff-critical', ], ALL_HOSTS, ALL_SERVICES ),
   ( 30, ['tsstuff-critical-24x7', ], ALL_HOSTS, ALL_SERVICES ),
-      ] + extra_service_conf['_ec_sl']
+  ( 10, [], ALL_HOSTS, ['Check_MK$'] ),
+] + extra_service_conf['_ec_sl']
+
+checkgroup_parameters.setdefault('filesystem', [])
+
+checkgroup_parameters['filesystem'] = [
+  ( {'levels': [(1, (-10.0, -5.0)), (1099511627776, (-5.0, -1.0)), (5497558138880, (-2.0, -1.0))]}, [], ALL_HOSTS, ALL_SERVICES ),
+] + checkgroup_parameters['filesystem']
 
 
 
-extra_service_conf.setdefault('_ec_sl', []) 
+active_checks.setdefault('icmp', [])
 
-extra_service_conf['_ec_sl'] = [
-  ( 10, ALL_HOSTS, ['Check_MK$'] ),
-            ] + extra_service_conf['_ec_sl']
-
-
-
+active_checks['icmp'] = [
+  ( {}, [], ALL_HOSTS ),
+] + active_checks['icmp']
 
 
 extra_host_conf.setdefault('check_interval', [])
@@ -37,13 +42,6 @@ host_contactgroups = [
   ( 'tsstuff-pager', ['tsstuff-critical', ], ALL_HOSTS ),
   ( 'tsstuff-pager', ['tsstuff-critical-24x7', ], ALL_HOSTS ),
 ] + host_contactgroups
-
-
-active_checks.setdefault('http', [])
-
-#active_checks['http'] = [
-#  ( (u'http-alive', {'uri': '/custom'}), [], ['service001'] ),
-#] + active_checks['http']
 
 
 extra_service_conf.setdefault('check_interval', [])
@@ -88,10 +86,18 @@ extra_service_conf['notification_period'] = [
 ] + extra_service_conf['notification_period']
 
 
+checkgroup_parameters.setdefault('filesystem', [])
+
+#checkgroup_parameters['filesystem'] = [
+#  ( {'levels': (75.0, 95.0)}, [], ALL_HOSTS, [u'/pool002'] ),
+#  ( {'levels': (95.0, 96.0)}, [], ALL_HOSTS, ALL_SERVICES ),
+#] + checkgroup_parameters['filesystem']
+
+
 active_checks.setdefault('ssh', [])
 
 active_checks['ssh'] = [
-  ( {}, [], ALL_HOSTS ),
+  ( {'timeout': 120}, [], ALL_HOSTS ),
 ] + active_checks['ssh']
 
 
@@ -171,7 +177,6 @@ extra_host_conf['notification_period'] = [
 extra_host_conf.setdefault('retry_interval', [])
 
 extra_host_conf['retry_interval'] = [
-  ( 1, [], ALL_HOSTS ),
+  ( 4.0, [], ALL_HOSTS ),
 ] + extra_host_conf['retry_interval']
-
 

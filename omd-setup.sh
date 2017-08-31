@@ -28,7 +28,7 @@ echo "Checking if group exists."
 getent groups $site
 status=$?
 if [[ $status == $? ]];then
-    echo "OMD creates a group for omd site, please choose another site name"
+    echo "OMD creates a group for omd site, please choose another site name or remove the group"
     exit 1
 fi
 
@@ -66,6 +66,7 @@ cp add-host.sh /omd/sites/$site/tssetup
 
 cp checkmk-setup.sh /omd/sites/$site/tssetup
 
+chown -R $site:$site /omd/sites/$site/tssetup
 chown -R $site:$site /omd/sites/$site/tssetup/*
 
 

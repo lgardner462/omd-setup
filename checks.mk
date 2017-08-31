@@ -1,17 +1,16 @@
 checks = [
-# ( "testhost", "logins", None, (150, 200) ),
 ( ALL_HOSTS, "cpu.threads" , None, (5000,7000) ),
 ]
 
-ignored_services += [
+tcp_connect_timeout = 120.0
 
-# These are autofs mounts and we shouldn't monitor them
-# ( ALL_HOSTS, [ 'NFS mount /run/*' ] ),
-# use name here
-# ( [ 'testhost','node017' ], ['Postfix Queue' ]),
+ignored_services += [
 ( ALL_HOSTS, ['Postfix Queue' ]),
+( ["ping-only"], ALL_HOSTS, "Number of Threads" ),
+( ["ping-only"], ALL_HOSTS, "Check_MK"),
 ]
 
+tcp_connect_timeout = 120.0
 
 inventory_df_exclude_fs += [
 
