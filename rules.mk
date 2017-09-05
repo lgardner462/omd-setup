@@ -82,7 +82,7 @@ extra_service_conf.setdefault('notification_period', [])
 extra_service_conf['notification_period'] = [
   ( 'allday', ['tsstuff-basic', ], ALL_HOSTS, ALL_SERVICES ),
   ( 'allday', ['tsstuff-critical', ], ALL_HOSTS, ALL_SERVICES ),
-  ( 'allday', [], ['tsstuff-critical-24x7'], ALL_SERVICES ),
+  ( 'allday', ['tsstuff-critical-24x7'], ALL_HOSTS, ALL_SERVICES ),
 ] + extra_service_conf['notification_period']
 
 
