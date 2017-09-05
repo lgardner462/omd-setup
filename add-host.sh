@@ -5,7 +5,6 @@ noreloading=0
 #contract=$(whoami)
 show_help () {
     echo '-p ping only host (you still need to type a criticality flag)'
-    echo '-w for contract eg neuro/engaging/c3ddb etc'
     echo '-b for basic host <hostname>'
     echo '-c for critical host <hostname>'
     echo '-x for critical 24x7 host <hostname>'
@@ -43,9 +42,6 @@ while getopts "hb:c:x::pw:rn" o;do
 			type=critical-24x7
                         hostgroupdir=critical24x7
 			host=$OPTARG
-			;;
-		w)
-			contract=$OPTARG
 			;;
 		p)
 			pingonly=1

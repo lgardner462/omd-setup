@@ -264,3 +264,4 @@ notification_rules += [{'allow_disable': True,
                      'reply_to': 'tsstuff-noc@techsquare.com',
                      'service_body': u'Service:  $SERVICEDESC$\nEvent:    $EVENT_TXT$\nOutput:   $SERVICEOUTPUT$\nPerfdata: $SERVICEPERFDATA$\n$LONGSERVICEOUTPUT$\n'})},
 
+]

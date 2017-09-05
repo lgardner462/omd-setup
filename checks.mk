@@ -8,6 +8,8 @@ ignored_services += [
 ( ALL_HOSTS, ['Postfix Queue' ]),
 ( ["ping-only"], ALL_HOSTS, "Number of Threads" ),
 ( ["ping-only"], ALL_HOSTS, "Check_MK"),
+( ["tsstuff-printer"], ALL_HOSTS, "Number of Threads"),
+( ["tsstuff-printer"], ALL_HOSTS, "SSH"),
 ]
 
 tcp_connect_timeout = 120.0
