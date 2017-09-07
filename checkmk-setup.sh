@@ -58,8 +58,8 @@ mkdir clone-tmp
 git clone git@github.com:lgardner462/omd-config.git clone-tmp
 mv clone-tmp/.git ~/etc/check_mk/conf.d/wato/.git
 mv clone-tmp/.gitignore ~/etc/check_mk/conf.d/wato/.gitignore
-cp ~/git_pull.sh ~/etc/check_mk/conf.d/wato
-cp ~/git_push.sh ~/etc/check_mk/conf.d/wato
+cp ~/git_pull.sh ~/etc/check_mk/conf.d/
+cp ~/git_push.sh ~/etc/check_mk/conf.d/
 rm -rf clone-tmp
 cd ~/etc/check_mk/conf.d/wato && ./git_pull.sh 
 
@@ -67,6 +67,6 @@ cd ~/etc/check_mk/conf.d/wato && ./git_pull.sh
 cmk -II; cmk -O
 htpasswd -b /omd/sites/$site/etc/htpasswd  $adminname $password
 htpasswd -b /omd/sites/$site/etc/htpasswd  omdadmin $password
-echo "4 0 * * * $OMD_ROOT/etc/check_mk/conf.d/wato/git_pull.sh" > ~/etc/cron.d/git_pull
+echo "4 0 * * * $OMD_ROOT/etc/check_mk/conf.d/git_pull.sh" > ~/etc/cron.d/git_pull
 
 
