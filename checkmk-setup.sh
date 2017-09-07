@@ -58,8 +58,8 @@ mkdir clone-tmp
 git clone git@github.com:lgardner462/omd-config.git clone-tmp
 mv clone-tmp/.git ~/etc/check_mk/conf.d/wato/.git
 mv clone-tmp/.gitignore ~/etc/check_mk/conf.d/wato/.gitignore
-cp ~/git_pull.sh ~/etc/check_mk/conf.d/
-cp ~/git_push.sh ~/etc/check_mk/conf.d/
+cp ~/git_pull.sh ~/etc/check_mk/conf.d/wato
+cp ~/git_push.sh ~/etc/check_mk/conf.d/wato
 rm -rf clone-tmp
 cd ~/etc/check_mk/conf.d/wato && ./git_pull.sh 
 
